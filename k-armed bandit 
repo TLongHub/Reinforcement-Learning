@@ -1,4 +1,5 @@
 import torch as t
+import matplotlib.pyplot as plt
 
 #   INITIALISING
 K = 10 # k is number of actions at each state
@@ -51,7 +52,7 @@ def greedy(q_star, alpha, DF = False):
     global Q, N, K
     """Performs greedy learning algorithm for k-bandit problem."""
     tc = 0 # Number of exploration cycles (select 0 for no exploration)
-    n = 500 # Number of additional time steps
+    n = 1000 # Number of additional time steps
     optimals = 0
     optimal_props = []
     for _ in range(tc): # Start exploration cycle
@@ -84,7 +85,6 @@ def greedy(q_star, alpha, DF = False):
         optimal_props.append(optimals)
         #OPTIMAL ACTION PROPORTION
 
-    print("The last action selected (favoured):", action)
     return optimal_props
 
 #   EPSILON-GREEDY APPROACH - greedy approach but w.p. epsilon, choose a random action
@@ -92,7 +92,7 @@ def greedy(q_star, alpha, DF = False):
 def epsilon_greedy(q_star, alpha, epsilon, DF = False): # Very similar to greedy approach...
     global Q, N, K
     """Performs epsilon-greedy learning algorithm for k-bandit problem."""
-    n = 500 # Number of additional time steps
+    n = 1000 # Number of additional time steps
     optimals = 0
     optimal_props = []
     for _ in range(n):
@@ -113,37 +113,7 @@ def epsilon_greedy(q_star, alpha, epsilon, DF = False): # Very similar to greedy
         optimal_props.append(optimals)
         #OPTIMAL ACTION PROPORTION
 
-    print("The last action selected (favoured):", action)
     return optimal_props
-
-
-#   TESTING 
-# GREEDY with/without discounting
-alpha = 0.1
-
-initialise()
-greedy(q_star, alpha, True) # With DF
-#print("q estimates:\n", Q)
-print("Optimal action was:", t.argmax(q_star))
-
-initialise()
-greedy(q_star, alpha) # Without DF
-#print("q estimates:\n", Q)
-print("Optimal action was:", t.argmax(q_star))
-
-
-# EPSILON-GREEDY with/without discounting
-epsilon = 0.1
-
-initialise()
-epsilon_greedy(q_star, alpha, epsilon, True) # With DF
-#print("q estimates:\n", Q)
-print("Optimal action was:", t.argmax(q_star))
-
-initialise()
-epsilon_greedy(q_star, alpha, epsilon) # Without DF
-#print("q estimates:\n", Q)
-print("Optimal action was:", t.argmax(q_star))
 
 
 #   BULK TESTING
@@ -151,7 +121,39 @@ print("Optimal action was:", t.argmax(q_star))
 def test_V1(num_tests):
     """Complete a number of runs of greedy and epsilon-greedy algorithms and track their success."""
     global Q, N, K
-    for _ in range(num_tests):
-        q_star = t.normal(0, 1, size=(1, K)) #Set random action values
+    prop_matrix = t.zeros(num_tests, 1000) #Create matrix of N x N size where N is number of steps in algorithm
+    for i in range(num_tests):
+        q_star = t.normal(0, 3, size=(1, K)) #Set random action values
         initialise() #Initialise estimates, Q, and time steps, N
-        
+        props = epsilon_greedy(q_star, 0, 0, False)
+        prop_matrix[i, :] = t.tensor(props) #Add the props to matrix
+    
+    optimal_proportions = []
+    for j in range(1000):
+        prop_j = sum(prop_matrix[:, j]) / (num_tests*j) #The proportion of optimal actions taken by time step j
+        optimal_proportions.append(prop_j)
+
+    time_steps = [step for step in (range(1000))]
+
+    plt.plot(time_steps, optimal_proportions, color = 'blue')
+
+    prop_matrix = t.zeros(num_tests, 1000) #Create matrix of N x N size where N is number of steps in algorithm
+    for i in range(num_tests):
+        q_star = t.normal(0, 3, size=(1, K)) #Set random action values
+        initialise() #Initialise estimates, Q, and time steps, N
+        props = epsilon_greedy(q_star, 0, 0.1, False)
+        prop_matrix[i, :] = t.tensor(props) #Add the props to matrix
+    
+    optimal_proportions = []
+    for j in range(1000):
+        prop_j = sum(prop_matrix[:, j]) / (num_tests*j) #The proportion of optimal actions taken by time step j
+        optimal_proportions.append(prop_j)
+
+    time_steps = [step for step in (range(1000))]
+
+    plt.plot(time_steps, optimal_proportions, color = 'red')
+    plt.show()
+
+test_V1(1000)
+
+

@@ -1,3 +1,3 @@
-import functions as f
+import matplotlib as plt
 
-initialise()
+plt.plot()
