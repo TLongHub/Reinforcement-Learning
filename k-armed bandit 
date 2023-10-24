@@ -89,7 +89,7 @@ def epsilon_greedy(q_star, alpha, epsilon, DF = False): # Very similar to greedy
     print("The last action selected (favoured):", action)
 
 
-# TESTING 
+#   TESTING 
 # GREEDY with/without discounting
 alpha = 0.1
 
@@ -116,3 +116,14 @@ initialise()
 epsilon_greedy(q_star, alpha, epsilon) # Without DF
 #print("q estimates:\n", Q)
 print("Optimal action was:", t.argmax(q_star))
+
+
+#   BULK TESTING
+
+def test_V1(num_tests):
+    """Complete a number of runs of greedy and epsilon-greedy algorithms and track their success."""
+    global Q, N, K
+    for _ in range(num_tests):
+        q_star = t.normal(0, 1, size=(1, K)) #Set random action values
+        initialise() #Initialise estimates, Q, and time steps, N
+        
