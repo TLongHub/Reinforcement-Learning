@@ -52,22 +52,40 @@ def greedy(q_star, alpha, DF = False):
     """Performs greedy learning algorithm for k-bandit problem."""
     tc = 0 # Number of exploration cycles (select 0 for no exploration)
     n = 500 # Number of additional time steps
+    optimals = 0
+    optimal_props = []
     for _ in range(tc): # Start exploration cycle
         for action in range(K): # Itterate over all possible actions
+
             reward = actual_reward(q_star, action)
             if DF == False:
                 SA_update(action, reward)
             else:
                 DF_update(action, reward, alpha)
+
+            #OPTIMAL ACTION PROPORTION
+            if action == t.argmax(q_star): #Keep track of number of optimal actions taken
+                optimals += 1
+            optimal_props.append(optimals)
+            #OPTIMAL ACTION PROPORTION
     
     for _ in range(n): # Start exploitation cycles
         action = t.argmax(Q) # Selecet the most favoured action
+
         reward = actual_reward(q_star, action)
         if DF == False:
             SA_update(action, reward)
         else:
             DF_update(action, reward, alpha)
+
+        #OPTIMAL ACTION PROPORTION
+        if action == t.argmax(q_star): #Keep track of number of optimal actions taken
+            optimals += 1
+        optimal_props.append(optimals)
+        #OPTIMAL ACTION PROPORTION
+
     print("The last action selected (favoured):", action)
+    return optimal_props
 
 #   EPSILON-GREEDY APPROACH - greedy approach but w.p. epsilon, choose a random action
 
@@ -75,18 +93,28 @@ def epsilon_greedy(q_star, alpha, epsilon, DF = False): # Very similar to greedy
     global Q, N, K
     """Performs epsilon-greedy learning algorithm for k-bandit problem."""
     n = 500 # Number of additional time steps
-    
+    optimals = 0
+    optimal_props = []
     for _ in range(n):
         if t.rand(1) <= epsilon: # With probability epsilon, choose action at random
             action = t.randint(10, (1, 1))
         else:
             action = t.argmax(Q) # Selecet the most favoured action
+
         reward = actual_reward(q_star, action)
         if DF == False:
             SA_update(action, reward)
         else:
             DF_update(action, reward, alpha)
+
+        #OPTIMAL ACTION PROPORTION
+        if action == t.argmax(q_star): #Keep track of number of optimal actions taken
+            optimals += 1
+        optimal_props.append(optimals)
+        #OPTIMAL ACTION PROPORTION
+
     print("The last action selected (favoured):", action)
+    return optimal_props
 
 
 #   TESTING 
